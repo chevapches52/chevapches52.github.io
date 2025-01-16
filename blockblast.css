@@ -1,0 +1,139 @@
+/* Стили для Block Blast */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(30px, 40px));
+    grid-template-rows: repeat(8, minmax(30px, 40px));
+    gap: 1px;
+    background: var(--border-color);
+    padding: 5px;
+    border-radius: 5px;
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.cell {
+    width: 100%;
+    height: 100%;
+    background: var(--cell-bg);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cell.filled {
+    border: none;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1),
+                background-color 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.cell.cleared {
+    animation: clear 0.3s ease-out;
+}
+
+.pieces-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px auto;
+    min-height: 90px;
+    flex-wrap: wrap;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.piece {
+    display: grid;
+    gap: 1px;
+    cursor: move;
+    background: var(--container-bg);
+    padding: 2px;
+    transition: transform 0.2s ease;
+    touch-action: none;
+    transform-origin: center center;
+    will-change: transform;
+    z-index: 1;
+}
+
+.piece:active {
+    transform: scale(1.1);
+}
+
+.piece-cell {
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+}
+
+.piece.dragging {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+
+.cell.preview {
+    border: 2px dashed var(--text-color);
+    position: relative;
+    background: var(--cell-bg) !important;
+}
+
+.cell.preview::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: currentColor;
+    opacity: 0.3;
+    border-radius: 2px;
+}
+
+@keyframes clear {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .piece-cell {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+/* Обновляем стили для сообщений */
+.game-message {
+    position: absolute;
+    top: -60px; /* Размещаем над игровым полем */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--container-bg);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    color: var(--text-color);
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.game-message.show {
+    opacity: 1;
+}
+
+/* Добавляем позиционирование для контейнера */
+.game-container {
+    position: relative; /* Добавляем для правильного позиционирования сообщения */
+} 
