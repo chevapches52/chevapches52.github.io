@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="blockblast.css">
     <link rel="stylesheet" href="2048.css">
     <link rel="stylesheet" href="snake.css">
+    <link rel="stylesheet" href="doodlejump.css">
 </head>
 <body>
     <div class="theme-switch">
@@ -22,6 +23,7 @@
         <button class="tab active" data-tab="blockblast">Block Blast</button>
         <button class="tab" data-tab="game2048">2048</button>
         <button class="tab" data-tab="snake">Змейка</button>
+        <button class="tab" data-tab="doodlejump">Doodle Jump</button>
     </div>
 
     <div id="blockblast" class="game active">
@@ -92,6 +94,17 @@
         </div>
     </div>
 
+    <div id="doodlejump" class="game">
+        <div class="game-container">
+            <div class="score-board">
+                <span>Рекорд: <span id="highscoreDoodle">0</span></span>
+                <span>Очки: <span id="scoreDoodle">0</span></span>
+            </div>
+            <canvas id="doodleCanvas"></canvas>
+            <button id="startDoodle">Начать игру</button>
+        </div>
+    </div>
+
     <div id="gameOverModal" class="modal">
         <div class="modal-content">
             <h2>Игра окончена!</h2>
@@ -104,6 +117,7 @@
     <script src="2048.js"></script>
     <script src="snake.js"></script>
     <script src="app.js"></script>
+    <script src="doodlejump.js"></script>
 </body>
 </html> 
 </html> 
