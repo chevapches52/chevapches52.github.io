@@ -78,15 +78,25 @@
     background: var(--cell-bg) !important;
 }
 
+.cell.preview.valid-target {
+    border: 2px solid #4CAF50;
+    background: rgba(76, 175, 80, 0.1) !important;
+}
+
+.cell.preview.invalid-target {
+    border: 2px solid #f44336;
+    background: rgba(244, 67, 54, 0.1) !important;
+}
+
 .cell.preview::before {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: currentColor;
-    opacity: 0.3;
+    opacity: 0.2;
     border-radius: 2px;
 }
 
@@ -136,4 +146,30 @@
 /* Добавляем позиционирование для контейнера */
 .game-container {
     position: relative; /* Добавляем для правильного позиционирования сообщения */
+}
+
+/* Добавьте эти стили для лучшей работы на мобильных устройствах */
+@media (max-width: 768px) {
+    .piece {
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .piece-cell {
+        width: 25px;
+        height: 25px;
+    }
+
+    .grid {
+        gap: 2px;
+        padding: 2px;
+    }
+}
+
+/* Стили для активного состояния при перетаскивании */
+.piece.dragging {
+    opacity: 0.8;
+    transform: scale(1.1);
+    pointer-events: none;
 } 
