@@ -282,9 +282,19 @@ class BlockBlast {
     }
 
     showPreview(shape, color, startRow, startCol) {
-        // Сначала проверяем, можно ли разместить фигуру
+        this.clearPreview(); // Очищаем предыдущий предпросмотр
+        
+        // Проверяем, можно ли разместить фигуру
         const canPlace = this.canPlacePiece(shape, startRow, startCol);
         
+        // Проверяем, что все ячейки находятся в пределах поля
+        const isInBounds = startRow >= 0 && 
+                          startCol >= 0 && 
+                          startRow + shape.length <= 8 && 
+                          startCol + shape[0].length <= 8;
+        
+        if (!isInBounds) return;
+
         for (let i = 0; i < shape.length; i++) {
             for (let j = 0; j < shape[0].length; j++) {
                 if (shape[i][j] === 1) {
@@ -314,112 +324,181 @@ class BlockBlast {
 
     setupTouchEvents() {
         let activePiece = null;
-        let startX, startY;
-        let initialX, initialY;
-        let xOffset = 0;
-        let yOffset = 0;
+        let touchStartX = null;
+        let touchStartY = null;
+        let pieceStartX = null;
+        let pieceStartY = null;
+        let originalTransform = null;
+
+        const pieces = document.getElementById('pieces');
         
-        const pieces = document.querySelectorAll('.piece');
-        pieces.forEach(piece => {
-            piece.addEventListener('touchstart', this.dragStart.bind(this));
-            piece.addEventListener('touchmove', this.drag.bind(this));
-            piece.addEventListener('touchend', this.dragEnd.bind(this));
+        // Обработчики для мыши
+        pieces.addEventListener('mousedown', (e) => {
+            const piece = e.target.closest('.piece');
+            if (!piece) return;
+
+            e.preventDefault();
+            activePiece = piece;
+            touchStartX = e.clientX;
+            touchStartY = e.clientY;
+
+            const rect = piece.getBoundingClientRect();
+            pieceStartX = rect.left;
+            pieceStartY = rect.top;
+            originalTransform = piece.style.transform;
+
+            piece.style.position = 'fixed';
+            piece.style.left = rect.left + 'px';
+            piece.style.top = rect.top + 'px';
+            piece.style.zIndex = '1000';
+            piece.classList.add('dragging');
         });
 
-        this.activePiece = null;
-        this.isDragging = false;
-    }
-
-    dragStart(e) {
-        if (e.target.closest('.piece')) {
+        document.addEventListener('mousemove', (e) => {
+            if (!activePiece) return;
             e.preventDefault();
-            this.activePiece = e.target.closest('.piece');
-            const touch = e.touches[0];
-            
-            initialX = touch.clientX - xOffset;
-            initialY = touch.clientY - yOffset;
-            
-            const rect = this.activePiece.getBoundingClientRect();
-            startX = touch.clientX - rect.left;
-            startY = touch.clientY - rect.top;
 
-            this.activePiece.classList.add('dragging');
-            this.isDragging = true;
-            
-            this.activePiece.style.position = 'fixed';
-            this.activePiece.style.left = rect.left + 'px';
-            this.activePiece.style.top = rect.top + 'px';
-        }
-    }
+            const deltaX = e.clientX - touchStartX;
+            const deltaY = e.clientY - touchStartY;
 
-    drag(e) {
-        if (this.isDragging) {
-            e.preventDefault();
-            
-            const touch = e.touches[0];
-            const x = touch.clientX - startX;
-            const y = touch.clientY - startY;
-            
-            this.activePiece.style.left = `${x}px`;
-            this.activePiece.style.top = `${y}px`;
-            
-            this.handleDragPreview(touch.clientX, touch.clientY);
-        }
-    }
+            activePiece.style.left = (pieceStartX + deltaX) + 'px';
+            activePiece.style.top = (pieceStartY + deltaY) + 'px';
 
-    handleDragPreview(x, y) {
-        this.clearPreview();
-        
-        const cell = this.getCellFromMousePosition(x, y);
-        if (cell) {
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            
-            this.showPreview(this.activePiece.shape, this.activePiece.color, row, col);
-        }
-    }
-
-    dragEnd(e) {
-        if (!this.isDragging) return;
-        
-        const touch = e.changedTouches[0];
-        const cell = this.getCellFromMousePosition(touch.clientX, touch.clientY);
-        
-        if (cell) {
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            
-            if (this.canPlacePiece(this.activePiece.shape, row, col)) {
-                this.placePiece(this.activePiece.shape, this.activePiece.color, row, col);
-                this.activePiece.remove();
-                if (document.querySelectorAll('.piece').length === 0) {
-                    this.generatePieces();
-                }
-                this.checkLines();
+            const cell = this.getCellFromPosition(e.clientX, e.clientY);
+            if (cell) {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                this.showPreview(activePiece.shape, activePiece.color, row, col);
             } else {
-                this.returnPieceToOrigin();
+                this.clearPreview();
             }
-        } else {
-            this.returnPieceToOrigin();
-        }
-        
-        this.clearPreview();
-        this.isDragging = false;
-        this.activePiece = null;
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!activePiece) return;
+
+            const cell = this.getCellFromPosition(e.clientX, e.clientY);
+            if (cell) {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                if (this.canPlacePiece(activePiece.shape, row, col)) {
+                    this.placePiece(activePiece.shape, activePiece.color, row, col);
+                    activePiece.remove();
+                    if (document.querySelectorAll('.piece').length === 0) {
+                        this.generatePieces();
+                    }
+                    this.checkLines();
+                } else {
+                    this.returnPieceToOrigin(activePiece);
+                }
+            } else {
+                this.returnPieceToOrigin(activePiece);
+            }
+
+            this.clearPreview();
+            activePiece = null;
+        });
+
+        // Обработчики для сенсорного экрана
+        pieces.addEventListener('touchstart', (e) => {
+            const piece = e.target.closest('.piece');
+            if (!piece) return;
+
+            e.preventDefault();
+            activePiece = piece;
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+
+            const rect = piece.getBoundingClientRect();
+            pieceStartX = rect.left;
+            pieceStartY = rect.top;
+            originalTransform = piece.style.transform;
+
+            piece.style.position = 'fixed';
+            piece.style.left = rect.left + 'px';
+            piece.style.top = rect.top + 'px';
+            piece.style.zIndex = '1000';
+            piece.classList.add('dragging');
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!activePiece) return;
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+
+            activePiece.style.left = (pieceStartX + deltaX) + 'px';
+            activePiece.style.top = (pieceStartY + deltaY) + 'px';
+
+            const cell = this.getCellFromPosition(touch.clientX, touch.clientY);
+            if (cell) {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                this.showPreview(activePiece.shape, activePiece.color, row, col);
+            } else {
+                this.clearPreview();
+            }
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (!activePiece) return;
+
+            const touch = e.changedTouches[0];
+            const cell = this.getCellFromPosition(touch.clientX, touch.clientY);
+            
+            if (cell) {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                if (this.canPlacePiece(activePiece.shape, row, col)) {
+                    this.placePiece(activePiece.shape, activePiece.color, row, col);
+                    activePiece.remove();
+                    if (document.querySelectorAll('.piece').length === 0) {
+                        this.generatePieces();
+                    }
+                    this.checkLines();
+                } else {
+                    this.returnPieceToOrigin(activePiece);
+                }
+            } else {
+                this.returnPieceToOrigin(activePiece);
+            }
+
+            this.clearPreview();
+            activePiece = null;
+        });
     }
 
-    returnPieceToOrigin() {
-        if (!this.activePiece) return;
+    // Обобщенный метод для получения ячейки из позиции
+    getCellFromPosition(x, y) {
+        const draggingPiece = document.querySelector('.piece.dragging');
+        if (draggingPiece) {
+            draggingPiece.style.visibility = 'hidden';
+        }
         
-        this.activePiece.style.transition = 'all 0.2s ease';
-        this.activePiece.style.position = '';
-        this.activePiece.style.left = '';
-        this.activePiece.style.top = '';
-        this.activePiece.style.transform = '';
+        const element = document.elementFromPoint(x, y);
+        
+        if (draggingPiece) {
+            draggingPiece.style.visibility = 'visible';
+        }
+
+        return element?.closest('.cell');
+    }
+
+    returnPieceToOrigin(piece) {
+        piece.style.transition = 'all 0.2s ease';
+        piece.style.position = '';
+        piece.style.left = '';
+        piece.style.top = '';
+        piece.style.zIndex = '';
+        piece.classList.remove('dragging');
         
         setTimeout(() => {
-            this.activePiece.style.transition = '';
-            this.activePiece.classList.remove('dragging');
+            piece.style.transition = '';
         }, 200);
     }
 
