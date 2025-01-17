@@ -3,6 +3,7 @@ class GameManager {
         this.blockBlast = new BlockBlast();
         this.game2048 = new Game2048();
         this.snake = new Snake();
+        this.doodleJump = new DoodleJump();
         this.setupTabs();
         this.setupThemeToggle();
     }
