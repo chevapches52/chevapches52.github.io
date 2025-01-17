@@ -1,0 +1,191 @@
+/* Базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    touch-action: manipulation;
+    padding: 20px;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* Общие стили для контейнеров */
+.game-container {
+    background: var(--container-bg);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 95vw;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Стили для вкладок */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: var(--container-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.tab.active {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Стили для игр */
+.game {
+    display: none;
+    width: 100%;
+}
+
+.game.active {
+    display: block;
+}
+
+/* Общие стили для счета */
+.score-board {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    width: 100%;
+}
+
+/* Общие стили для кнопок */
+button {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 10px auto;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:hover {
+    background: #45a049;
+}
+
+/* Темная тема */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --container-bg: #2d2d2d;
+    --cell-bg: #3d3d3d;
+    --border-color: #444;
+    --snake-color: #66bb6a;
+    --food-color: #ff5252;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f0;
+    --text-color: #000000;
+    --container-bg: #ffffff;
+    --cell-bg: #ffffff;
+    --border-color: #ddd;
+    --snake-color: #4CAF50;
+    --food-color: #f44336;
+}
+
+/* Переключатель темы */
+.theme-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+.switch input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.theme-label {
+    color: var(--text-color);
+} 
